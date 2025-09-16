@@ -6,4 +6,13 @@ function getDate() {
     console.log(formatted);
 }
 
-module.exports = { getDate };
+function getCurrentWeekday() {
+    const now = moment();
+    const weekday = now.format('dddd');
+    console.log(`Сегодня: ${weekday}`);
+}
+
+module.exports = {
+    getDate,
+    getCurrentWeekday
+};

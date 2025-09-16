@@ -1,3 +1,4 @@
-const { getDate } = require('./date');
+const { getDate, getCurrentWeekday } = require('./date');
 
 getDate();
+getCurrentWeekday();
