@@ -1,0 +1,25 @@
+[
+    {
+        "id": 1,
+        "name": "Post1",
+        "description": "Description",
+        "image": "https://vgorode.ua/img/article/3938/12_main-v1573686449.jpg",
+        "likes": 22
+    },
+
+    {
+        "id": 2,
+        "name": "Post2",
+        "description": "Description",
+        "image": "https://vgorode.ua/img/article/3938/12_main-v1573686449.jpg",
+        "likes": 345
+    },
+
+    {
+        "id": 3,
+        "name": "Post3",
+        "description": "Description",
+        "image": "https://vgorode.ua/img/article/3938/12_main-v1573686449.jpg",
+        "likes": 142
+    }
+]
