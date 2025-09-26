@@ -5,6 +5,7 @@ const fs = require("fs");
 const app = express();
 const PORT = 8001;
 const HOST = 'localhost';
+
 const postPath = path.join(__dirname, "post.json");
 const post = JSON.parse(fs.readFileSync(postPath, "utf-8"));
 
