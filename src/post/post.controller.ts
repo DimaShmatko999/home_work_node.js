@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { PostService } from './post.service';
+import { CreatePostData, UpdatePostData } from './post.types';
 
 export const PostController = {
   getAll: async (req: Request, res: Response) => {
@@ -18,7 +19,7 @@ export const PostController = {
       const take = takeParam ? +takeParam : undefined;
       const posts = await PostService.getAll(skip, take);
       res.status(200).json(posts);
-    } catch (error) {
+    } catch {
       res.status(500).json({ message: 'Failed to read posts' });
     }
   },
@@ -26,18 +27,14 @@ export const PostController = {
   getById: async (req: Request, res: Response) => {
     try {
       const id = +req.params.id;
-      if (isNaN(id)) {
-        return res.status(400).json('id must be an integer');
-      }
+      if (isNaN(id)) return res.status(400).json('id must be an integer');
 
       const post = await PostService.getById(id);
-      if (!post) {
-        return res.status(404).json('post not found');
-      }
+      if (!post) return res.status(404).json('post not found');
 
       res.status(200).json(post);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to read posts' });
+    } catch {
+      res.status(500).json({ message: 'Failed to read post' });
     }
   },
 
@@ -49,10 +46,38 @@ export const PostController = {
         return res.status(422).json({ message: 'name, description and image are required' });
       }
 
-      const newPost = await PostService.create({ name, description, image });
+      const newPost = await PostService.create({
+        name,
+        description,
+        image,
+      } as CreatePostData);
+      
       res.status(201).json(newPost);
-    } catch (error) {
+    } catch {
       res.status(500).json({ message: 'Failed to create post' });
+    }
+  },
+
+  update: async (req: Request, res: Response) => {
+    try {
+      const id = +req.params.id;
+      if (isNaN(id)) return res.status(400).json('id must be a number');
+
+      const updateData: UpdatePostData = req.body;
+
+      for (const key in updateData) {
+        const value = updateData[key as keyof UpdatePostData];
+        if (typeof value !== 'string' && typeof value !== 'number') {
+          return res.status(422).json({ message: `Invalid type for field: ${key}` });
+        }
+      }
+
+      const updatedPost = await PostService.update(id, updateData);
+      if (!updatedPost) return res.status(404).json('Post not found');
+
+      res.status(200).json(updatedPost);
+    } catch {
+      res.status(500).json({ message: 'Failed to update post' });
     }
   },
 };
