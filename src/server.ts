@@ -1,5 +1,5 @@
 import express from 'express';
-import { PostRouter } from './post/post.router';
+import { PostRouter } from './router/post.router';
 
 const app = express();
 const PORT = 8001;
@@ -14,5 +14,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, HOST, () => {
-  console.log(`Server started on http://${HOST}:${PORT}`);
+  console.log(`✅ Server started on http://${HOST}:${PORT}`);
 });
