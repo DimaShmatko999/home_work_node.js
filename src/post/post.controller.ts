@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
 import { PostService } from './post.service';
 import { CreatePostData, UpdatePostData } from './post.types';
+import { IPostController } from './post.types';
 
-export const PostController = {
-  getAll: async (req: Request, res: Response) => {
+export const PostController: IPostController = {
+  getAll: async (req, res) => {
     try {
-      const skipParam = req.query.skip as string | undefined;
-      const takeParam = req.query.take as string | undefined;
+      const skipParam = req.query.skip;
+      const takeParam = req.query.take;
 
       if (skipParam !== undefined && isNaN(+skipParam)) {
         return res.status(400).json('skip must be a number');
@@ -24,7 +25,7 @@ export const PostController = {
     }
   },
 
-  getById: async (req: Request, res: Response) => {
+  getById: async (req, res) => {
     try {
       const id = +req.params.id;
       if (isNaN(id)) return res.status(400).json('id must be an integer');
@@ -38,19 +39,15 @@ export const PostController = {
     }
   },
 
-  create: async (req: Request, res: Response) => {
+  create: async (req, res) => {
     try {
-      const { name, description, image } = req.body;
+      const { name, description, image } = req.body as CreatePostData;
 
       if (!name || !description || !image) {
         return res.status(422).json({ message: 'name, description and image are required' });
       }
 
-      const newPost = await PostService.create({
-        name,
-        description,
-        image,
-      } as CreatePostData);
+      const newPost = await PostService.create(req.body as CreatePostData);
       
       res.status(201).json(newPost);
     } catch {
@@ -58,12 +55,12 @@ export const PostController = {
     }
   },
 
-  update: async (req: Request, res: Response) => {
+  update: async (req, res) => {
     try {
       const id = +req.params.id;
       if (isNaN(id)) return res.status(400).json('id must be a number');
 
-      const updateData: UpdatePostData = req.body;
+      const updateData = req.body as UpdatePostData;
 
       for (const key in updateData) {
         const value = updateData[key as keyof UpdatePostData];

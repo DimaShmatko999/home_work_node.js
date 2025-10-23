@@ -1,23 +1,23 @@
 import path from 'path';
 import fs from 'fs/promises';
-import { Post, CreatePostData, UpdatePostData } from './post.types';
+import { Post, CreatePostData, UpdatePostData, IPostService } from './post.types';
 
 const postPath = path.join(__dirname, 'post.json');
 
-export const PostService = {
-  async getAll(skip = 0, take?: number): Promise<Post[]> {
+export const PostService: IPostService = {
+  async getAll(skip = 0, take) {
     const data = await fs.readFile(postPath, 'utf-8');
     const posts: Post[] = JSON.parse(data);
     return take !== undefined ? posts.slice(skip, skip + take) : posts.slice(skip);
   },
 
-  async getById(id: number): Promise<Post | undefined> {
+  async getById(id) {
     const data = await fs.readFile(postPath, 'utf-8');
     const posts: Post[] = JSON.parse(data);
     return posts.find(post => post.id === id);
   },
 
-  async create(postData: CreatePostData): Promise<Post> {
+  async create(postData) {
     const data = await fs.readFile(postPath, 'utf-8');
     const posts: Post[] = JSON.parse(data);
 
@@ -32,7 +32,7 @@ export const PostService = {
     return newPost;
   },
 
-  async update(id: number, updateData: UpdatePostData): Promise<Post | null> {
+  async update(id, updateData) {
     const data = await fs.readFile(postPath, 'utf-8');
     const posts: Post[] = JSON.parse(data);
     const index = posts.findIndex(post => post.id === id);
