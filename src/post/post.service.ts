@@ -1,50 +1,79 @@
-import path from 'path';
-import fs from 'fs/promises';
-import { Post, CreatePostData, UpdatePostData, IPostService } from './post.types';
+import { PrismaClient } from "@prisma/client";
+import {
+  CreatePost,
+  UpdatePost,
+  DeletePostRequest,
+  DeletePostResponse,
+} from "../types/post.types";
 
-const postPath = path.join(__dirname, 'post.json');
+const prisma = new PrismaClient();
 
-export const PostService: IPostService = {
-  async getAll(skip = 0, take) {
-    const data = await fs.readFile(postPath, 'utf-8');
-    const posts: Post[] = JSON.parse(data);
-    return take !== undefined ? posts.slice(skip, skip + take) : posts.slice(skip);
+export const PostService = {
+  async getAll(skip = 0, take?: number) {
+    return prisma.post.findMany({
+      skip,
+      take,
+      include: { tags: true },
+    });
   },
 
-  async getById(id) {
-    const data = await fs.readFile(postPath, 'utf-8');
-    const posts: Post[] = JSON.parse(data);
-    return posts.find(post => post.id === id);
+  async getById(id: number) {
+    return prisma.post.findUnique({
+      where: { id },
+      include: { tags: true },
+    });
   },
 
-  async create(postData) {
-    const data = await fs.readFile(postPath, 'utf-8');
-    const posts: Post[] = JSON.parse(data);
-
-    const newPost: Post = {
-      id: posts.length ? posts[posts.length - 1].id + 1 : 1,
-      ...postData,
-      likes: 0,
-    };
-
-    posts.push(newPost);
-    await fs.writeFile(postPath, JSON.stringify(posts, null, 2));
-    return newPost;
+  async create(data: CreatePost) {
+    return prisma.post.create({
+      data: {
+        title: data.title,
+        content: data.content,
+        tags: data.tagIds
+          ? { connect: data.tagIds.map((id) => ({ id })) }
+          : undefined,
+      },
+      include: { tags: true },
+    });
   },
 
-  async update(id, updateData) {
-    const data = await fs.readFile(postPath, 'utf-8');
-    const posts: Post[] = JSON.parse(data);
-    const index = posts.findIndex(post => post.id === id);
+  async update(id: number, data: UpdatePost) {
+    try {
+      const existingPost = await prisma.post.findUnique({ where: { id } });
+      if (!existingPost) return null;
 
-    if (index === -1) return null;
+      return prisma.post.update({
+        where: { id },
+        data: {
+          title: data.title,
+          content: data.content,
+          tags: data.tagIds
+            ? { set: data.tagIds.map((id) => ({ id })) }
+            : undefined,
+        },
+        include: { tags: true },
+      });
+    } catch (error) {
+      console.error("Ошибка при обновлении поста:", error);
+      throw error;
+    }
+  },
 
-    posts[index] = {
-      ...posts[index],
-      ...updateData,
-    };
+  async delete({ id }: DeletePostRequest): Promise<DeletePostResponse> {
+    try {
+      const post = await prisma.post.findUnique({ where: { id } });
+      if (!post) {
+        return { post: null };
+      }
 
-    await fs.writeFile(postPath, JSON.stringify(posts, null, 2));
-    return posts[index];
-  }
+      const deletedPost = await prisma.post.delete({
+        where: { id },
+      });
+
+      return { post: deletedPost };
+    } catch (error) {
+      console.error("Ошибка при удалении поста:", error);
+      throw error;
+    }
+  },
 };

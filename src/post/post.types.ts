@@ -35,3 +35,40 @@ export interface UpdatePostChecked {
   content?: string;
   tagIds?: number[];
 }
+
+export interface GetPostsResponse {
+  posts: PostWithTags[];
+}
+
+export interface GetPostByIdRequest {
+  id: number;
+}
+
+export interface GetPostByIdResponse {
+  post: PostWithTags | null;
+}
+
+export interface CreatePostRequest {
+  data: CreatePost;
+}
+
+export interface CreatePostResponse {
+  post: PostWithTags;
+}
+
+export interface UpdatePostRequest {
+  id: number;
+  data: UpdatePost;
+}
+
+export interface UpdatePostResponse {
+  post: PostWithTags;
+}
+
+export interface DeletePostRequest {
+  id: number;
+}
+
+export interface DeletePostResponse {
+  post: Post | null;
+}
